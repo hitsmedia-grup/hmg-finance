@@ -101,7 +101,6 @@ function RecurringPage() {
     );
   }
 
-
   const accName = (id: string | null | undefined) => accounts.find((a) => a.id === id)?.name;
   const catName = (id: string | null | undefined) => categories.find((c) => c.id === id)?.name;
   const toIdr = (r: Recurring) =>
