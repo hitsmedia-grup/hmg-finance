@@ -57,10 +57,10 @@ export const remindersQuery = (days: number) =>
   });
 export const debtsQuery = () =>
   queryOptions({ queryKey: ["debts"], queryFn: () => getDebts(), staleTime: FRESH });
-export const budgetsQuery = (month: string, account?: string) =>
+export const budgetsQuery = (month: string) =>
   queryOptions({
-    queryKey: account ? ["budgets", month, account] : ["budgets", month],
-    queryFn: () => getBudgets({ data: { month, ...(account ? { account } : {}) } }),
+    queryKey: ["budgets", month],
+    queryFn: () => getBudgets({ data: { month } }),
     staleTime: FRESH,
   });
 export const balancesQuery = () =>

@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { AlertTriangle, CalendarClock, CheckCircle2, PiggyBank, Repeat2 } from "lucide-react";
@@ -13,7 +13,7 @@ import { useClientPage } from "@/hooks/use-client-page";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { errMsg, remindersQuery, invalidateFor, rowsQuery } from "@/lib/queries";
+import { errMsg, remindersQuery, invalidateFor } from "@/lib/queries";
 import { payDebt, paySubscription } from "@/lib/finance.functions";
 import { postRecurring } from "@/lib/recurring.functions";
 import { dateLabel } from "@/lib/dates";
@@ -85,6 +85,13 @@ function RemindersPage() {
           </Tabs>
         }
       />
+      <p className="mb-4 text-sm text-muted-foreground">
+        {t("Pengingat juga bisa dikirim otomatis ke Telegram/WhatsApp/email lewat n8n — lihat ")}
+        <Link to="/settings" className="text-primary underline">
+          {t("Pengaturan")}
+        </Link>
+        .
+      </p>
       {list.length === 0 ? (
         <Empty text={t("Aman! Tidak ada tagihan dalam periode ini.")} />
       ) : (

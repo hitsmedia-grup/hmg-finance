@@ -91,13 +91,6 @@ create table if not exists public.subscriptions (
   notes text,
   created_at timestamptz not null default now()
 );
--- Jika tabel subscriptions sudah ada, jalankan migrasi berikut:
--- alter table public.subscriptions drop constraint if exists subscriptions_cycle_check;
--- alter table public.subscriptions add constraint subscriptions_cycle_check
---   check (cycle in ('monthly','yearly','custom'));
--- alter table public.subscriptions
---   add column if not exists cycle_months int not null default 1 check (cycle_months >= 1);
--- update public.subscriptions set cycle_months = 12 where cycle = 'yearly';
 
 create table if not exists public.budgets (
   id uuid primary key default gen_random_uuid(),

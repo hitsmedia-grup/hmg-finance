@@ -742,7 +742,7 @@ async function monthlyNetBefore(end: string, fb: AggSource): Promise<MonthNet[]>
 export async function computeBudgets(month: string) {
   const { start, end } = monthRange(month);
   const [budgetsRes, cats] = await Promise.all([
-    db().from("budgets").select("*, category:categories(id,name,color), account:accounts(id,name)"),
+    db().from("budgets").select("*, category:categories(id,name,color)"),
     categoryTotals(start, end, "expense", () => fetchAggTx(start, end, { kind: "expense" })),
   ]);
   const budgets = must(budgetsRes);
@@ -754,7 +754,6 @@ export async function computeBudgets(month: string) {
   const carries = rolling.length
     ? await (await import("./budget.server")).rolloverCarries(month, rolling)
     : new Map<string, number>();
-
   return budgets.map((b) => {
     const amount = Number(b.amount);
     const s = spent.get(b.category_id) ?? 0;

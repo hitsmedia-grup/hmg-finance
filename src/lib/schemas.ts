@@ -142,8 +142,6 @@ export const budgetSchema = z.object({
   alert_percent: z.coerce.number().int().min(1).max(100).default(80),
   /** v11: carry last month's remainder (or overspend) into this month. */
   rollover: z.boolean().default(false),
-  /** v20: optional account_id — null = budget applies to category across all accounts. */
-  account_id: optId,
 });
 
 export const goalSchema = z.object({

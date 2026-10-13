@@ -349,8 +349,7 @@ export type Database = {
           name?: string;
           amount?: number;
           currency?: Currency;
-          cycle?: "monthly" | "yearly" | "custom";
-          cycle_months?: number;
+          cycle?: "monthly" | "yearly";
           next_due?: string;
           account_id?: string | null;
           category_id?: string | null;

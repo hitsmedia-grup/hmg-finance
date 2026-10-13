@@ -68,7 +68,7 @@ function SubsPage() {
     withTax(Number(s.amount), s.tax_percent) * (s.currency === "USD" ? usdIdr : 1);
   const page = useClientPage(filtered, PAGE_SIZE, account);
   const active = filtered.filter((s) => s.active);
-  const monthly = active.reduce((a, s) => a + toIdr(s) / (s.cycle === "yearly" ? 12 : 1), 0);
+  const monthly = active.reduce((a, s) => a + (s.cycle === "yearly" ? toIdr(s) / 12 : toIdr(s)), 0);
   const today = todayStr();
   const accName = (id: string | null | undefined) => accounts.find((a) => a.id === id)?.name;
 

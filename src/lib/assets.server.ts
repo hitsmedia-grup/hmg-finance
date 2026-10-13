@@ -152,7 +152,7 @@ type GoldListOptions = {
   limit?: number;
   sort?: "occurred_at" | "grams" | "price_per_gram" | "total";
   direction?: "asc" | "desc";
-  account?: string;
+  account?: string | undefined;
 };
 
 export async function goldSummary(options: GoldListOptions = {}) {
@@ -288,7 +288,7 @@ export async function goldGramsByMonth(): Promise<{ month: string; grams: number
 
 /* ---------------- Receivables ---------------- */
 export async function listReceivables(
-  options: { offset?: number; limit?: number; account?: string } = {},
+  options: { offset?: number; limit?: number; account?: string | undefined } = {},
 ) {
   const offset = options.offset ?? 0;
   const limit = options.limit ?? 24;

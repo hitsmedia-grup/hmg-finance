@@ -31,9 +31,7 @@ export const Route = createFileRoute("/_app/gold")({
   validateSearch: validateReportSearch,
   loaderDeps: ({ search }) => ({ account: search.account }),
   loader: ({ context, deps }) =>
-    context.queryClient.ensureQueryData(
-      goldQuery(deps.account ? { account: deps.account } : {}),
-    ),
+    context.queryClient.ensureQueryData(goldQuery(deps.account ? { account: deps.account } : {})),
   errorComponent: RouteError,
   pendingComponent: PageSkeleton,
   pendingMs: PENDING_MS,
