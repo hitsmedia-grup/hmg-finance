@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { CURRENCY_OPTIONS } from "@/components/entity-dialog";
 import { Empty, RowActions, useCrudDialog } from "@/components/crud-page";
 import { Pagination } from "@/components/pagination";
 import { useClientPage } from "@/hooks/use-client-page";
+import { WalletFilter } from "@/components/wallet-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
+import { validateReportSearch } from "@/lib/report-filter";
 import type { Account, Category, Recurring } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_app/recurring")({
@@ -30,6 +32,7 @@ export const Route = createFileRoute("/_app/recurring")({
       "Transaksi Berulang",
       "Gaji, sewa, dan transfer rutin yang dicatat otomatis sesuai jadwal.",
     ),
+  validateSearch: validateReportSearch,
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(recurringQuery()),
@@ -52,10 +55,14 @@ function RecurringPage() {
   usePrivacy();
   const { t, lang } = useI18n();
   const locale = lang === "en" ? "en-US" : "id-ID";
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const data = useSuspenseQuery(recurringQuery()).data;
   const { usdIdr } = useSuspenseQuery(fxQuery()).data;
   const accounts = (useQuery(rowsQuery("accounts")).data ?? []) as Account[];
   const categories = (useQuery(rowsQuery("categories")).data ?? []) as Category[];
+  const setAccount = (a: string | undefined) =>
+    void navigate({ search: a ? { account: a } : {}, replace: true });
   const post = useServerFn(postRecurring);
   const toggle = useServerFn(toggleRecurring);
   const qc = useQueryClient();
@@ -71,7 +78,9 @@ function RecurringPage() {
     active: true,
   });
   // Hooks must run before the early return below; a missing table is an empty list.
-  const page = useClientPage((data.ready ? data.rows : []) as unknown as Recurring[], PAGE_SIZE);
+  const rows = (data.ready ? data.rows : []) as unknown as Recurring[];
+  const filtered = rows.filter((r) => !search.account || r.account_id === search.account || (r.kind === "transfer" && r.to_account_id === search.account));
+  const page = useClientPage(filtered, PAGE_SIZE);
 
   if (!data.ready) {
     return (
@@ -92,7 +101,7 @@ function RecurringPage() {
   const toIdr = (r: Recurring) =>
     monthlyEquivalent(Number(r.amount), r.cycle as RecurringCycle, r.interval) *
     (r.currency === "USD" ? usdIdr : 1);
-  const active = rows.filter((r) => r.active);
+  const active = filtered.filter((r) => r.active);
   const monthlyIn = active.filter((r) => r.kind === "income").reduce((a, r) => a + toIdr(r), 0);
   const monthlyOut = active.filter((r) => r.kind === "expense").reduce((a, r) => a + toIdr(r), 0);
 
@@ -141,6 +150,9 @@ function RecurringPage() {
           </Button>
         }
       />
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+      </div>
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Card className="min-w-0 p-5">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">

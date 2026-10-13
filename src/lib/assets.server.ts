@@ -152,18 +152,22 @@ type GoldListOptions = {
   limit?: number;
   sort?: "occurred_at" | "grams" | "price_per_gram" | "total";
   direction?: "asc" | "desc";
+  account?: string;
 };
 
 export async function goldSummary(options: GoldListOptions = {}) {
   const offset = options.offset ?? 0;
   const limit = options.limit ?? 25;
   const base = "id, kind, occurred_at, grams, price_per_gram, total, place, notes";
-  const run = (columns: string) =>
-    db()
+  const run = (columns: string) => {
+    let q: any = db()
       .from("gold_purchases")
       .select(columns, { count: "exact" })
-      .order(options.sort ?? "occurred_at", { ascending: (options.direction ?? "desc") === "asc" })
-      .range(offset, offset + limit - 1);
+      .order(options.sort ?? "occurred_at", { ascending: (options.direction ?? "desc") === "asc" });
+    // v20: filter by account_id when requested
+    if (options.account) q = q.eq("account_id", options.account);
+    return q.range(offset, offset + limit - 1);
+  };
   let res = await run(`${base}, gold_type, product_number, account_id, transaction_id`);
   if (res.error && /account_id|transaction_id/i.test(res.error.message))
     res = await run(`${base}, gold_type, product_number`);
@@ -174,14 +178,16 @@ export async function goldSummary(options: GoldListOptions = {}) {
   }
   // Holdings need every row (PostgREST caps responses at 1000); prices are independent, so load both together.
   const [all, prices] = await Promise.all([
-    fetchAll((from, to) =>
-      db()
+    fetchAll((from, to) => {
+      let q: any = db()
         .from("gold_purchases")
         .select("kind, grams, price_per_gram, total")
         .order("occurred_at", { ascending: false })
-        .order("id")
-        .range(from, to),
-    ),
+        .order("id");
+      // v20: filter holdings by account too
+      if (options.account) q = q.eq("account_id", options.account);
+      return q.range(from, to);
+    }),
     getGoldPrices(),
   ]);
   if (all.error) throw new Error(all.error.message);
@@ -281,15 +287,19 @@ export async function goldGramsByMonth(): Promise<{ month: string; grams: number
 }
 
 /* ---------------- Receivables ---------------- */
-export async function listReceivables(options: { offset?: number; limit?: number } = {}) {
+export async function listReceivables(options: { offset?: number; limit?: number; account?: string } = {}) {
   const offset = options.offset ?? 0;
   const limit = options.limit ?? 24;
   const [r, p, outstanding] = await Promise.all([
-    db()
-      .from("receivables")
-      .select("*", { count: "exact" })
-      .order("lent_at", { ascending: false })
-      .range(offset, offset + limit - 1),
+    (() => {
+      let q: any = db()
+        .from("receivables")
+        .select("*", { count: "exact" })
+        .order("lent_at", { ascending: false });
+      // v20: filter by account_id when requested
+      if (options.account) q = q.eq("account_id", options.account);
+      return q.range(offset, offset + limit - 1);
+    })(),
     fetchAll((from, to) =>
       db()
         .from("receivable_payments")
@@ -298,14 +308,16 @@ export async function listReceivables(options: { offset?: number; limit?: number
         .order("id")
         .range(from, to),
     ),
-    fetchAll((from, to) =>
-      db()
+    fetchAll((from, to) => {
+      let q: any = db()
         .from("receivables")
         .select("id, amount, currency, status")
         .eq("status", "active")
-        .order("id")
-        .range(from, to),
-    ),
+        .order("id");
+      // v20: filter outstanding by account too
+      if (options.account) q = q.eq("account_id", options.account);
+      return q.range(from, to);
+    }),
   ]);
   if (r.error || p.error) {
     if (isMissingTable(r.error) || isMissingTable(p.error)) return { ready: false as const };

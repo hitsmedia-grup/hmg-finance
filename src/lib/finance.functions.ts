@@ -233,10 +233,10 @@ export const getDebts = createServerFn({ method: "GET" })
 
 export const getBudgets = createServerFn({ method: "GET" })
   .middleware([requireAdmin])
-  .inputValidator((d: unknown) => z.object({ month }).parse(d))
+  .inputValidator((d: unknown) => z.object({ month, account: z.string().uuid().optional() }).parse(d))
   .handler(async ({ data }) => {
     const { computeBudgets } = await import("./finance.server");
-    return computeBudgets(data.month);
+    return computeBudgets(data.month, data.account);
   });
 
 export const getBalances = createServerFn({ method: "GET" })
@@ -453,6 +453,7 @@ export const getGold = createServerFn({ method: "GET" })
         limit: z.number().int().min(1).max(100).default(25),
         sort: z.enum(["occurred_at", "grams", "price_per_gram", "total"]).default("occurred_at"),
         direction: z.enum(["asc", "desc"]).default("desc"),
+        account: z.string().uuid().optional(),
       })
       .parse(d),
   )
@@ -468,6 +469,7 @@ export const getReceivables = createServerFn({ method: "GET" })
       .object({
         offset: z.number().int().min(0).default(0),
         limit: z.number().int().min(1).max(100).default(24),
+        account: z.string().uuid().optional(),
       })
       .parse(d),
   )

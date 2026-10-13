@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Plus, Undo2 } from "lucide-react";
@@ -11,6 +11,7 @@ import { Empty, RowActions, useCrudDialog } from "@/components/crud-page";
 import { useConfirm } from "@/components/confirm-dialog";
 import { Pagination } from "@/components/pagination";
 import { useClientPage } from "@/hooks/use-client-page";
+import { WalletFilter } from "@/components/wallet-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
+import { validateReportSearch } from "@/lib/report-filter";
 import type { Account } from "@/lib/schemas";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -32,6 +34,7 @@ const PAGE_SIZE = 10;
 export const Route = createFileRoute("/_app/debts")({
   head: () =>
     pageHead("Hutang & Cicilan", "Pantau paylater, pinjaman, dan cicilan beserta jatuh temponya."),
+  validateSearch: validateReportSearch,
   loader: ({ context }) => context.queryClient.ensureQueryData(debtsQuery()),
   errorComponent: RouteError,
   pendingComponent: PageSkeleton,
@@ -42,8 +45,13 @@ export const Route = createFileRoute("/_app/debts")({
 function DebtsPage() {
   usePrivacy();
   const { t, lang } = useI18n();
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const { data: debts } = useSuspenseQuery(debtsQuery());
   const accounts = (useQuery(rowsQuery("accounts")).data ?? []) as Account[];
+  const setAccount = (a: string | undefined) =>
+    void navigate({ search: a ? { account: a } : {}, replace: true });
+  const filtered = (debts as any[]).filter((d) => !search.account || d.account_id === search.account);
   const pay = useServerFn(payDebt);
   const del = useServerFn(deleteRow);
   const qc = useQueryClient();
@@ -63,12 +71,12 @@ function DebtsPage() {
     { value: "personal", label: t("Hutang pribadi") },
     { value: "other", label: t("Lainnya") },
   ];
-  const active = (debts as any[]).filter((d) => d.status === "active");
+  const active = filtered.filter((d) => d.status === "active");
   const totalRemaining = active.reduce(
     (a, d) => a + (d.currency === "IDR" ? d.remaining_amount : 0),
     0,
   );
-  const page = useClientPage(debts as any[], PAGE_SIZE);
+  const page = useClientPage(filtered, PAGE_SIZE);
 
   async function doPay(d: any) {
     if (
@@ -114,7 +122,10 @@ function DebtsPage() {
           </Button>
         }
       />
-      {debts.length === 0 ? (
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+      </div>
+      {filtered.length === 0 ? (
         <Empty
           text={t("Belum ada hutang/cicilan. Tambahkan paylater, KTA, atau pinjaman teman.")}
         />

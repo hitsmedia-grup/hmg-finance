@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { Empty, RowActions, useCrudDialog } from "@/components/crud-page";
 import { EntityDialog, type FieldDef } from "@/components/entity-dialog";
 import { Pagination } from "@/components/pagination";
 import { useClientPage } from "@/hooks/use-client-page";
+import { WalletFilter } from "@/components/wallet-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -22,11 +23,13 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
+import { validateReportSearch } from "@/lib/report-filter";
 import type { Account, Goal } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_app/goals")({
   head: () =>
     pageHead("Target Tabungan", "Pantau progres tabungan untuk setiap tujuan keuanganmu."),
+  validateSearch: validateReportSearch,
   loader: ({ context }) => context.queryClient.ensureQueryData(rowsQuery("goals")),
   errorComponent: RouteError,
   pendingComponent: PageSkeleton,
@@ -41,14 +44,19 @@ type Funds = { open: boolean; goal: Goal | null; sign: 1 | -1; initial: Record<s
 
 function GoalsPage() {
   const { t } = useI18n();
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const goals = useSuspenseQuery(rowsQuery("goals")).data as Goal[];
   const accounts = ((useQuery(rowsQuery("accounts")).data ?? []) as Account[]).filter(
     (a) => !a.archived,
   );
+  const setAccount = (a: string | undefined) =>
+    void navigate({ search: a ? { account: a } : {}, replace: true });
+  const filtered = goals.filter((g) => !search.account || g.account_id === search.account);
   const crud = useCrudDialog("goals", { saved_amount: 0, color: "#c99a2e" });
   const add = useServerFn(addGoalFunds);
   const qc = useQueryClient();
-  const page = useClientPage(goals, PAGE_SIZE);
+  const page = useClientPage(filtered, PAGE_SIZE);
   const [funds, setFunds] = useState<Funds>({ open: false, goal: null, sign: 1, initial: {} });
   const accName = (id: string | null | undefined) =>
     accounts.find((a) => a.id === id)?.name ?? null;
@@ -108,7 +116,10 @@ function GoalsPage() {
           </Button>
         }
       />
-      {goals.length === 0 ? (
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+      </div>
+      {filtered.length === 0 ? (
         <Empty text={t("Belum ada target tabungan.")} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
