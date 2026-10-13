@@ -291,6 +291,11 @@ const DICT: Record<string, string> = {
   "Kustom (isi jumlah bulan)": "Custom (enter month count)",
   "Jumlah bulan per siklus": "Months per cycle",
   bulan: "months",
+  "1 bulan": "1 month",
+  "3 bulan": "3 months",
+  "1 tahun": "1 year",
+  Kustom: "Custom",
+  "Jumlah bulan": "Number of months",
   /* Budgets */
   "Batas pengeluaran bulanan per kategori dengan peringatan otomatis.":
     "Monthly spending limits per category with automatic alerts.",

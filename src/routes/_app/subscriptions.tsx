@@ -211,77 +211,137 @@ function SubsPage() {
         visible={page.visible.length}
         onChange={page.setOffset}
       />
-      {crud.dialog(t("langganan"), [
-        {
-          name: "name",
-          label: t("Nama layanan"),
-          type: "text",
-          placeholder: "Netflix, ChatGPT Plus…",
+      {crud.dialog(
+        t("langganan"),
+        [
+          {
+            name: "name",
+            label: t("Nama layanan"),
+            type: "text",
+            placeholder: "Netflix, ChatGPT Plus…",
+          },
+          {
+            name: "amount",
+            label: t("Harga (sebelum pajak, atau sudah termasuk)"),
+            type: "number",
+            half: true,
+          },
+          {
+            name: "tax_percent",
+            label: t("Pajak % (opsional, kosongkan jika sudah termasuk)"),
+            type: "number",
+            half: true,
+            placeholder: "11",
+          },
+          {
+            name: "currency",
+            label: t("Mata uang"),
+            type: "select",
+            half: true,
+            options: CURRENCY_OPTIONS,
+          },
+          { name: "next_due", label: t("Tagihan berikutnya"), type: "date", half: true },
+          {
+            name: "account_id",
+            label: t("Dibayar dari"),
+            type: "select",
+            half: true,
+            options: [
+              { value: "", label: "—" },
+              ...accounts.map((a) => ({ value: a.id, label: a.name })),
+            ],
+          },
+          {
+            name: "category_id",
+            label: t("Kategori"),
+            type: "select",
+            half: true,
+            options: [
+              { value: "", label: t("Langganan (default)") },
+              ...categories
+                .filter((c) => c.kind === "expense")
+                .map((c) => ({ value: c.id, label: c.name })),
+            ],
+          },
+          { name: "active", label: t("Aktif"), type: "switch" },
+          { name: "notes", label: t("Catatan"), type: "textarea" },
+        ],
+        (v, set) => {
+          const cm = Number(v.cycle_months) || 1;
+          const isCustom = cm !== 1 && cm !== 3 && cm !== 12;
+          return (
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">{t("Siklus")}</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={cm === 1 && !isCustom ? "default" : "outline"}
+                    onClick={() => {
+                      set("cycle", "monthly");
+                      set("cycle_months", 1);
+                    }}
+                  >
+                    {t("1 bulan")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={cm === 3 && !isCustom ? "default" : "outline"}
+                    onClick={() => {
+                      set("cycle", "custom");
+                      set("cycle_months", 3);
+                    }}
+                  >
+                    {t("3 bulan")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={cm === 12 && !isCustom ? "default" : "outline"}
+                    onClick={() => {
+                      set("cycle", "yearly");
+                      set("cycle_months", 12);
+                    }}
+                  >
+                    {t("1 tahun")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={isCustom ? "default" : "outline"}
+                    onClick={() => {
+                      set("cycle", "custom");
+                      if (cm === 1 || cm === 3 || cm === 12) set("cycle_months", 2);
+                    }}
+                  >
+                    {t("Kustom")}
+                  </Button>
+                </div>
+              </div>
+              {isCustom ? (
+                <div className="space-y-1.5">
+                  <label htmlFor="cycle_months_custom" className="text-sm font-medium">
+                    {t("Jumlah bulan")}
+                  </label>
+                  <input
+                    id="cycle_months_custom"
+                    type="number"
+                    inputMode="decimal"
+                    step="1"
+                    min="1"
+                    max="1200"
+                    value={cm}
+                    onChange={(e) => set("cycle_months", Number(e.target.value) || 1)}
+                    className="num flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              ) : null}
+            </div>
+          );
         },
-        {
-          name: "amount",
-          label: t("Harga (sebelum pajak, atau sudah termasuk)"),
-          type: "number",
-          half: true,
-        },
-        {
-          name: "tax_percent",
-          label: t("Pajak % (opsional, kosongkan jika sudah termasuk)"),
-          type: "number",
-          half: true,
-          placeholder: "11",
-        },
-        {
-          name: "currency",
-          label: t("Mata uang"),
-          type: "select",
-          half: true,
-          options: CURRENCY_OPTIONS,
-        },
-        {
-          name: "cycle",
-          label: t("Siklus"),
-          type: "select",
-          half: true,
-          options: [
-            { value: "monthly", label: t("Bulanan (1 bulan)") },
-            { value: "yearly", label: t("Tahunan (12 bulan)") },
-            { value: "custom", label: t("Kustom (isi jumlah bulan)") },
-          ],
-        },
-        {
-          name: "cycle_months",
-          label: t("Jumlah bulan per siklus"),
-          type: "number",
-          half: true,
-          placeholder: "3",
-        },
-        { name: "next_due", label: t("Tagihan berikutnya"), type: "date", half: true },
-        {
-          name: "account_id",
-          label: t("Dibayar dari"),
-          type: "select",
-          half: true,
-          options: [
-            { value: "", label: "—" },
-            ...accounts.map((a) => ({ value: a.id, label: a.name })),
-          ],
-        },
-        {
-          name: "category_id",
-          label: t("Kategori"),
-          type: "select",
-          half: true,
-          options: [
-            { value: "", label: t("Langganan (default)") },
-            ...categories
-              .filter((c) => c.kind === "expense")
-              .map((c) => ({ value: c.id, label: c.name })),
-          ],
-        },
-        { name: "active", label: t("Aktif"), type: "switch" },
-        { name: "notes", label: t("Catatan"), type: "textarea" },
-      ])}
+      )}
     </>
   );
 }
