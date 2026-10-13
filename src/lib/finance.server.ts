@@ -739,7 +739,7 @@ async function monthlyNetBefore(end: string, fb: AggSource): Promise<MonthNet[]>
 }
 
 /* ---------------- Budgets ---------------- */
-export async function computeBudgets(month: string, accountFilter?: string | null) {
+export async function computeBudgets(month: string) {
   const { start, end } = monthRange(month);
   const [budgetsRes, cats] = await Promise.all([
     db().from("budgets").select("*, category:categories(id,name,color), account:accounts(id,name)"),
@@ -755,19 +755,7 @@ export async function computeBudgets(month: string, accountFilter?: string | nul
     ? await (await import("./budget.server")).rolloverCarries(month, rolling)
     : new Map<string, number>();
 
-  // v20: filter by account when requested
-  let filtered = budgets;
-  if (accountFilter) {
-    const lowerFilter = accountFilter.toLowerCase();
-    filtered = budgets.filter((b) => {
-      const aid = b.account_id ? String(b.account_id).toLowerCase() : null;
-      // null account_id = applies to all accounts, show it when filtering
-      // non-null account_id = only show if it matches the filter
-      return aid === null || aid === lowerFilter;
-    });
-  }
-
-  return filtered.map((b) => {
+  return budgets.map((b) => {
     const amount = Number(b.amount);
     const s = spent.get(b.category_id) ?? 0;
     const rollover = b.rollover === true;
@@ -785,8 +773,6 @@ export async function computeBudgets(month: string, accountFilter?: string | nul
       rollover,
       carry,
       effective,
-      account_id: (b.account_id ?? null) as string | null,
-      account_name: (b.account?.name ?? null) as string | null,
     };
   });
 }

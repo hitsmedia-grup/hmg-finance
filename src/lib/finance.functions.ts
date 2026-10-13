@@ -233,12 +233,10 @@ export const getDebts = createServerFn({ method: "GET" })
 
 export const getBudgets = createServerFn({ method: "GET" })
   .middleware([requireAdmin])
-  .inputValidator((d: unknown) =>
-    z.object({ month, account: z.string().uuid().optional() }).parse(d),
-  )
+  .inputValidator((d: unknown) => z.object({ month }).parse(d))
   .handler(async ({ data }) => {
     const { computeBudgets } = await import("./finance.server");
-    return computeBudgets(data.month, data.account);
+    return computeBudgets(data.month);
   });
 
 export const getBalances = createServerFn({ method: "GET" })
@@ -461,7 +459,10 @@ export const getGold = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }) => {
     const { goldSummary } = await import("./assets.server");
-    return goldSummary(data) as Promise<any>;
+    return goldSummary({
+      ...data,
+      ...(data.account ? { account: data.account } : {}),
+    }) as Promise<any>;
   });
 
 export const getReceivables = createServerFn({ method: "GET" })
@@ -477,7 +478,10 @@ export const getReceivables = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }) => {
     const { listReceivables } = await import("./assets.server");
-    return listReceivables(data) as Promise<any>;
+    return listReceivables({
+      ...data,
+      ...(data.account ? { account: data.account } : {}),
+    }) as Promise<any>;
   });
 
 export const saveReceivableFn = createServerFn({ method: "POST" })
