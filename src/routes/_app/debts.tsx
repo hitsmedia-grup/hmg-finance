@@ -24,7 +24,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { validateReportSearch } from "@/lib/report-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 import type { Account } from "@/lib/schemas";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -51,7 +51,8 @@ function DebtsPage() {
   const accounts = (useQuery(rowsQuery("accounts")).data ?? []) as Account[];
   const setAccount = (a: string | undefined) =>
     void navigate({ search: a ? { account: a } : {}, replace: true });
-  const filtered = (debts as any[]).filter((d) => !search.account || d.account_id === search.account);
+  const account = resolveReportAccount(search.account, accounts);
+  const filtered = (debts as any[]).filter((d) => !account || d.account_id === account);
   const pay = useServerFn(payDebt);
   const del = useServerFn(deleteRow);
   const qc = useQueryClient();
@@ -123,7 +124,7 @@ function DebtsPage() {
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
       </div>
       {filtered.length === 0 ? (
         <Empty

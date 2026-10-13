@@ -15,7 +15,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { validateReportSearch } from "@/lib/report-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 import type { Account, Category } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_app/budgets")({
@@ -40,7 +40,8 @@ function BudgetsPage() {
   const categories = (useQuery(rowsQuery("categories")).data ?? []) as Category[];
   const setAccount = (a: string | undefined) =>
     void navigate({ search: a ? { account: a } : {}, replace: true });
-  const filtered = budgets.filter((b) => !search.account || b.account_id === search.account);
+  const account = resolveReportAccount(search.account, accounts);
+  const filtered = budgets.filter((b) => !account || b.account_id === account);
   const crud = useCrudDialog("budgets", { alert_percent: 80, rollover: false });
   const total = filtered.reduce((a, b) => a + b.amount, 0);
   const spent = filtered.reduce((a, b) => a + b.spent, 0);
@@ -56,7 +57,7 @@ function BudgetsPage() {
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
       </div>
       {filtered.length === 0 ? (
         <Empty text={t("Belum ada budget. Contoh: Makanan Rp2.000.000 per bulan.")} />

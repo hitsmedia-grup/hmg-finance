@@ -22,7 +22,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { validateReportSearch } from "@/lib/report-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 
 export const Route = createFileRoute("/_app/reminders")({
   head: () =>
@@ -49,7 +49,8 @@ function RemindersPage() {
   const accounts = useQuery(rowsQuery("accounts")).data ?? [];
   const setAccount = (a: string | undefined) =>
     void navigate({ search: a ? { account: a } : {}, replace: true });
-  const filtered = list.filter((r) => !search.account || r.account_id === search.account);
+  const account = resolveReportAccount(search.account, accounts);
+  const filtered = list.filter((r) => !account || r.account_id === account);
   const pd = useServerFn(payDebt);
   const ps = useServerFn(paySubscription);
   const pr = useServerFn(postRecurring);
@@ -95,7 +96,7 @@ function RemindersPage() {
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
       </div>
       <p className="mb-4 text-sm text-muted-foreground">
         {t("Pengingat juga bisa dikirim otomatis ke Telegram/WhatsApp/email lewat n8n — lihat ")}

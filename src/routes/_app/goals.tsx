@@ -23,7 +23,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { validateReportSearch } from "@/lib/report-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 import type { Account, Goal } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_app/goals")({
@@ -52,7 +52,8 @@ function GoalsPage() {
   );
   const setAccount = (a: string | undefined) =>
     void navigate({ search: a ? { account: a } : {}, replace: true });
-  const filtered = goals.filter((g) => !search.account || g.account_id === search.account);
+  const account = resolveReportAccount(search.account, accounts);
+  const filtered = goals.filter((g) => !account || g.account_id === account);
   const crud = useCrudDialog("goals", { saved_amount: 0, color: "#c99a2e" });
   const add = useServerFn(addGoalFunds);
   const qc = useQueryClient();
@@ -117,7 +118,7 @@ function GoalsPage() {
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
       </div>
       {filtered.length === 0 ? (
         <Empty text={t("Belum ada target tabungan.")} />

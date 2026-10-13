@@ -23,7 +23,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { validateReportSearch } from "@/lib/report-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 import type { Account, Category, Recurring } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_app/recurring")({
@@ -79,7 +79,8 @@ function RecurringPage() {
   });
   // Hooks must run before the early return below; a missing table is an empty list.
   const rows = (data.ready ? data.rows : []) as unknown as Recurring[];
-  const filtered = rows.filter((r) => !search.account || r.account_id === search.account || (r.kind === "transfer" && r.to_account_id === search.account));
+  const account = resolveReportAccount(search.account, accounts);
+  const filtered = rows.filter((r) => !account || r.account_id === account || (r.kind === "transfer" && r.to_account_id === account));
   const page = useClientPage(filtered, PAGE_SIZE);
 
   if (!data.ready) {
@@ -95,7 +96,7 @@ function RecurringPage() {
     );
   }
 
-  const rows = data.rows as unknown as Recurring[];
+
   const accName = (id: string | null | undefined) => accounts.find((a) => a.id === id)?.name;
   const catName = (id: string | null | undefined) => categories.find((c) => c.id === id)?.name;
   const toIdr = (r: Recurring) =>
@@ -151,7 +152,7 @@ function RecurringPage() {
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
       </div>
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Card className="min-w-0 p-5">

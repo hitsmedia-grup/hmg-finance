@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +18,8 @@ import { money } from "@/lib/format";
 import { secret, usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
+import { WalletFilter } from "@/components/wallet-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const Route = createFileRoute("/_app/gold")({
@@ -26,7 +28,10 @@ export const Route = createFileRoute("/_app/gold")({
       "Tabungan Emas",
       "Catat pembelian dan penjualan emas, pantau nilai dengan harga dunia dan Antam.",
     ),
-  loader: ({ context }) => context.queryClient.ensureQueryData(goldQuery()),
+  validateSearch: validateReportSearch,
+  loaderDeps: ({ search }) => ({ account: search.account }),
+  loader: ({ context, deps }) =>
+    context.queryClient.ensureQueryData(goldQuery({ account: deps.account })),
   errorComponent: RouteError,
   pendingComponent: PageSkeleton,
   pendingMs: PENDING_MS,
@@ -37,21 +42,28 @@ function GoldPage() {
   usePrivacy();
   const { t, lang } = useI18n();
   const locale = lang === "en" ? "en-US" : "id-ID";
+  const search = Route.useSearch();
+  const navigate = useNavigate();
   const [offset, setOffset] = useState(0);
   const [sort, setSort] = useState<"occurred_at" | "grams" | "price_per_gram" | "total">(
     "occurred_at",
   );
   const [direction, setDirection] = useState<SortDirection>("desc");
   const pageSize = 25;
-  const { data, isFetching } = useQuery({
-    ...goldQuery({ offset, limit: pageSize, sort, direction }),
-    placeholderData: (p) => p,
-  });
   const accounts = (useQuery(rowsQuery("accounts")).data ?? []) as {
     id: string;
     name: string;
     archived?: boolean;
   }[];
+  const account = resolveReportAccount(search.account, accounts);
+  const setAccount = (a: string | undefined) => {
+    setOffset(0);
+    void navigate({ search: a ? { account: a } : {}, replace: true });
+  };
+  const { data, isFetching } = useQuery({
+    ...goldQuery({ offset, limit: pageSize, sort, direction, account }),
+    placeholderData: (p) => p,
+  });
   const accName = (id: string | null | undefined) => accounts.find((a) => a.id === id)?.name;
   const crud = useCrudDialog("gold_purchases", {
     kind: "buy",
@@ -206,6 +218,7 @@ function GoldPage() {
           direction={direction}
           onClick={() => sortBy("total")}
         />
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
         {isFetching ? (
           <span className="ml-auto text-xs text-muted-foreground">{t("Memuat…")}</span>
         ) : null}

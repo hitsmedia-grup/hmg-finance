@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -23,12 +23,17 @@ import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
 import type { Account } from "@/lib/schemas";
+import { WalletFilter } from "@/components/wallet-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const Route = createFileRoute("/_app/receivables")({
   head: () =>
     pageHead("Piutang", "Catat uang yang dipinjam kerabat, terima cicilan, dan pantau sisanya."),
-  loader: ({ context }) => context.queryClient.ensureQueryData(receivablesQuery()),
+  validateSearch: validateReportSearch,
+  loaderDeps: ({ search }) => ({ account: search.account }),
+  loader: ({ context, deps }) =>
+    context.queryClient.ensureQueryData(receivablesQuery(0, 24, deps.account)),
   errorComponent: RouteError,
   pendingComponent: PageSkeleton,
   pendingMs: PENDING_MS,
@@ -41,10 +46,17 @@ function ReceivablesPage() {
   usePrivacy();
   const { t, lang } = useI18n();
   const locale = lang === "en" ? "en-US" : "id-ID";
+  const search = Route.useSearch();
+  const navigate = useNavigate();
   const [offset, setOffset] = useState(0);
   const pageSize = 24;
-  const data = useSuspenseQuery(receivablesQuery(offset, pageSize)).data as any;
   const accounts = (useQuery(rowsQuery("accounts")).data ?? []) as Account[];
+  const account = resolveReportAccount(search.account, accounts);
+  const setAccount = (a: string | undefined) => {
+    setOffset(0);
+    void navigate({ search: a ? { account: a } : {}, replace: true });
+  };
+  const data = useSuspenseQuery(receivablesQuery(offset, pageSize, account)).data as any;
   const save = useServerFn(saveReceivableFn);
   const pay = useServerFn(payReceivableFn);
   const act = useServerFn(receivableActionFn);
@@ -112,6 +124,9 @@ function ReceivablesPage() {
           </Button>
         }
       />
+      <div className="no-print mb-2 flex flex-wrap gap-1">
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
+      </div>
       {items.length === 0 ? (
         <Empty text={t("Belum ada piutang. Catat uang yang dipinjam teman atau keluarga.")} />
       ) : (

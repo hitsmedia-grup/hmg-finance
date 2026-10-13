@@ -22,7 +22,7 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { validateReportSearch } from "@/lib/report-filter";
+import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 import type { Account, Category, Subscription } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_app/subscriptions")({
@@ -54,7 +54,8 @@ function SubsPage() {
   const categories = (useQuery(rowsQuery("categories")).data ?? []) as Category[];
   const setAccount = (a: string | undefined) =>
     void navigate({ search: a ? { account: a } : {}, replace: true });
-  const filtered = subs.filter((s) => !search.account || s.account_id === search.account);
+  const account = resolveReportAccount(search.account, accounts);
+  const filtered = subs.filter((s) => !account || s.account_id === account);
   const pay = useServerFn(paySubscription);
   const qc = useQueryClient();
   const crud = useCrudDialog("subscriptions", {
@@ -93,7 +94,7 @@ function SubsPage() {
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={search.account} accounts={accounts} onChange={setAccount} />
+        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
       </div>
       <div className="mb-4 grid gap-3 sm:grid-cols-2">
         <Card className="min-w-0 bg-ink p-5 text-ink-foreground">
