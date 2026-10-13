@@ -61,7 +61,7 @@ function GoldPage() {
     void navigate({ search: a ? { account: a } : {}, replace: true });
   };
   const { data, isFetching } = useQuery({
-    ...goldQuery({ offset, limit: pageSize, sort, direction, account }),
+    ...goldQuery({ offset, limit: pageSize, sort, direction, ...(account ? { account } : {}) }),
     placeholderData: (p) => p,
   });
   const accName = (id: string | null | undefined) => accounts.find((a) => a.id === id)?.name;

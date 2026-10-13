@@ -121,16 +121,6 @@ function BudgetsPage() {
         },
         { name: "amount", label: t("Batas per bulan (IDR)"), type: "number", half: true },
         { name: "alert_percent", label: t("Peringatan saat (%)"), type: "number", half: true },
-        {
-          name: "account_id",
-          label: t("Akun (opsional)"),
-          type: "select",
-          half: true,
-          options: [
-            { value: "", label: "—" },
-            ...accounts.map((a) => ({ value: a.id, label: a.name })),
-          ],
-        },
         { name: "rollover", label: t("Sisa bulan lalu dibawa (rollover)"), type: "switch" },
       ])}
     </>
