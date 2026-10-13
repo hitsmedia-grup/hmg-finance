@@ -1,11 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/app-shell";
 import { RouteError } from "@/components/route-error";
 import { PageSkeleton, PENDING_MS } from "@/components/skeletons";
 import { Empty, RowActions, useCrudDialog } from "@/components/crud-page";
-import { WalletFilter } from "@/components/wallet-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -15,13 +14,11 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
-import type { Account, Category } from "@/lib/schemas";
+import type { Category } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_app/budgets")({
   head: () =>
     pageHead("Budget", "Batas pengeluaran bulanan per kategori dengan peringatan otomatis."),
-  validateSearch: validateReportSearch,
   loader: ({ context }) => context.queryClient.ensureQueryData(budgetsQuery(currentMonth())),
   errorComponent: RouteError,
   pendingComponent: PageSkeleton,
@@ -32,19 +29,12 @@ export const Route = createFileRoute("/_app/budgets")({
 function BudgetsPage() {
   usePrivacy();
   const { t, lang } = useI18n();
-  const search = Route.useSearch();
-  const navigate = useNavigate({ from: Route.fullPath });
   const month = currentMonth();
   const { data: budgets } = useSuspenseQuery(budgetsQuery(month));
-  const accounts = (useQuery(rowsQuery("accounts")).data ?? []) as Account[];
   const categories = (useQuery(rowsQuery("categories")).data ?? []) as Category[];
-  const setAccount = (a: string | undefined) =>
-    void navigate({ search: a ? { account: a } : {}, replace: true });
-  const account = resolveReportAccount(search.account, accounts);
-  const filtered = budgets.filter((b) => !account || b.account_id === account);
   const crud = useCrudDialog("budgets", { alert_percent: 80, rollover: false });
-  const total = filtered.reduce((a, b) => a + b.amount, 0);
-  const spent = filtered.reduce((a, b) => a + b.spent, 0);
+  const total = budgets.reduce((a, b) => a + b.amount, 0);
+  const spent = budgets.reduce((a, b) => a + b.spent, 0);
   return (
     <>
       <PageHeader
@@ -56,14 +46,11 @@ function BudgetsPage() {
           </Button>
         }
       />
-      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
-      </div>
-      {filtered.length === 0 ? (
+      {budgets.length === 0 ? (
         <Empty text={t("Belum ada budget. Contoh: Makanan Rp2.000.000 per bulan.")} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {filtered.map((b) => {
+          {budgets.map((b) => {
             const tone =
               b.percent >= 100
                 ? "text-expense"
@@ -88,7 +75,6 @@ function BudgetsPage() {
                         amount: b.amount,
                         alert_percent: b.alert_percent,
                         rollover: b.rollover,
-                        account_id: b.account_id ?? "",
                       })
                     }
                     onDelete={() => crud.remove(b.id, `${t("budget")} ${b.category}`)}

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -10,7 +10,6 @@ import { PageSkeleton, PENDING_MS } from "@/components/skeletons";
 import { Empty } from "@/components/crud-page";
 import { Pagination } from "@/components/pagination";
 import { useClientPage } from "@/hooks/use-client-page";
-import { WalletFilter } from "@/components/wallet-filter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,12 +21,10 @@ import { money } from "@/lib/format";
 import { usePrivacy } from "@/lib/privacy";
 import { useI18n } from "@/lib/i18n";
 import { pageHead } from "@/lib/head";
-import { resolveReportAccount, validateReportSearch } from "@/lib/report-filter";
 
 export const Route = createFileRoute("/_app/reminders")({
   head: () =>
     pageHead("Pengingat", "Daftar cicilan, langganan, dan budget yang perlu diperhatikan."),
-  validateSearch: validateReportSearch,
   loader: ({ context }) => context.queryClient.ensureQueryData(remindersQuery(30)),
   errorComponent: RouteError,
   pendingComponent: PageSkeleton,
@@ -42,22 +39,15 @@ function RemindersPage() {
   usePrivacy();
   const { t, lang } = useI18n();
   const locale = lang === "en" ? "en-US" : "id-ID";
-  const search = Route.useSearch();
-  const navigate = useNavigate({ from: Route.fullPath });
   const [days, setDays] = useState(30);
   const { data: list } = useSuspenseQuery(remindersQuery(days));
-  const accounts = useQuery(rowsQuery("accounts")).data ?? [];
-  const setAccount = (a: string | undefined) =>
-    void navigate({ search: a ? { account: a } : {}, replace: true });
-  const account = resolveReportAccount(search.account, accounts);
-  const filtered = list.filter((r) => !account || r.account_id === account);
   const pd = useServerFn(payDebt);
   const ps = useServerFn(paySubscription);
   const pr = useServerFn(postRecurring);
   const qc = useQueryClient();
   // Back to page 1 whenever the period tab changes.
-  const page = useClientPage(filtered, PAGE_SIZE, days);
-  const total = filtered.filter((r) => r.type !== "budget").reduce((a, r) => a + r.amount_idr, 0);
+  const page = useClientPage(list, PAGE_SIZE, days);
+  const total = list.filter((r) => r.type !== "budget").reduce((a, r) => a + r.amount_idr, 0);
 
   async function pay(r: (typeof list)[number]) {
     try {
@@ -95,17 +85,7 @@ function RemindersPage() {
           </Tabs>
         }
       />
-      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <WalletFilter value={account} accounts={accounts} onChange={setAccount} />
-      </div>
-      <p className="mb-4 text-sm text-muted-foreground">
-        {t("Pengingat juga bisa dikirim otomatis ke Telegram/WhatsApp/email lewat n8n — lihat ")}
-        <Link to="/settings" className="text-primary underline">
-          {t("Pengaturan")}
-        </Link>
-        .
-      </p>
-      {filtered.length === 0 ? (
+      {list.length === 0 ? (
         <Empty text={t("Aman! Tidak ada tagihan dalam periode ini.")} />
       ) : (
         <Card className="divide-y">

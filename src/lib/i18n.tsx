@@ -290,7 +290,6 @@ const DICT: Record<string, string> = {
   "Tahunan (12 bulan)": "Yearly (12 months)",
   "Kustom (isi jumlah bulan)": "Custom (enter month count)",
   "Jumlah bulan per siklus": "Months per cycle",
-  bulan: "months",
   "1 bulan": "1 month",
   "3 bulan": "3 months",
   "1 tahun": "1 year",

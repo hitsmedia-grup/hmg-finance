@@ -57,7 +57,7 @@ function GoalsPage() {
   const crud = useCrudDialog("goals", { saved_amount: 0, color: "#c99a2e" });
   const add = useServerFn(addGoalFunds);
   const qc = useQueryClient();
-  const page = useClientPage(filtered, PAGE_SIZE);
+  const page = useClientPage(filtered, PAGE_SIZE, account);
   const [funds, setFunds] = useState<Funds>({ open: false, goal: null, sign: 1, initial: {} });
   const accName = (id: string | null | undefined) =>
     accounts.find((a) => a.id === id)?.name ?? null;

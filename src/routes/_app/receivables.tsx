@@ -47,7 +47,7 @@ function ReceivablesPage() {
   const { t, lang } = useI18n();
   const locale = lang === "en" ? "en-US" : "id-ID";
   const search = Route.useSearch();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: Route.fullPath });
   const [offset, setOffset] = useState(0);
   const pageSize = 24;
   const accounts = (useQuery(rowsQuery("accounts")).data ?? []) as Account[];

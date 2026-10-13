@@ -43,7 +43,7 @@ function GoldPage() {
   const { t, lang } = useI18n();
   const locale = lang === "en" ? "en-US" : "id-ID";
   const search = Route.useSearch();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: Route.fullPath });
   const [offset, setOffset] = useState(0);
   const [sort, setSort] = useState<"occurred_at" | "grams" | "price_per_gram" | "total">(
     "occurred_at",

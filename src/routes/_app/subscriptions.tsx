@@ -68,7 +68,7 @@ function SubsPage() {
   });
   const toIdr = (s: Subscription) =>
     withTax(Number(s.amount), s.tax_percent) * (s.currency === "USD" ? usdIdr : 1);
-  const page = useClientPage(filtered, PAGE_SIZE);
+  const page = useClientPage(filtered, PAGE_SIZE, account);
   const active = filtered.filter((s) => s.active);
   const monthly = active.reduce((a, s) => a + toIdr(s) / cycleMonths(s), 0);
   const today = todayStr();

@@ -81,7 +81,7 @@ function RecurringPage() {
   const rows = (data.ready ? data.rows : []) as unknown as Recurring[];
   const account = resolveReportAccount(search.account, accounts);
   const filtered = rows.filter((r) => !account || r.account_id === account || (r.kind === "transfer" && r.to_account_id === account));
-  const page = useClientPage(filtered, PAGE_SIZE);
+  const page = useClientPage(filtered, PAGE_SIZE, account);
 
   if (!data.ready) {
     return (

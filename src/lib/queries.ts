@@ -60,7 +60,7 @@ export const debtsQuery = () =>
 export const budgetsQuery = (month: string, account?: string) =>
   queryOptions({
     queryKey: account ? ["budgets", month, account] : ["budgets", month],
-    queryFn: () => getBudgets({ data: { month, account } }),
+    queryFn: () => getBudgets({ data: { month, ...(account ? { account } : {}) } }),
     staleTime: FRESH,
   });
 export const balancesQuery = () =>
@@ -84,7 +84,7 @@ export const goldQuery = (f: GoldFilter = {}) =>
           limit: f.limit ?? 25,
           sort: f.sort ?? "occurred_at",
           direction: f.direction ?? "desc",
-          account: f.account,
+          ...(f.account ? { account: f.account } : {}),
         },
       }),
     staleTime: 300_000,
@@ -94,7 +94,7 @@ export const assetsQuery = () =>
 export const receivablesQuery = (offset = 0, limit = 24, account?: string) =>
   queryOptions({
     queryKey: account ? ["receivables", offset, limit, account] : ["receivables", offset, limit],
-    queryFn: () => getReceivables({ data: { offset, limit, account } }),
+    queryFn: () => getReceivables({ data: { offset, limit, ...(account ? { account } : {}) } }),
   });
 /** `account` = Laporan/Rekap wallet filter (#62); omitted = all wallets (same key and request as before). */
 const withAccount = (account?: string) => (account ? { account } : {});

@@ -77,7 +77,7 @@ function DebtsPage() {
     (a, d) => a + (d.currency === "IDR" ? d.remaining_amount : 0),
     0,
   );
-  const page = useClientPage(filtered, PAGE_SIZE);
+  const page = useClientPage(filtered, PAGE_SIZE, account);
 
   async function doPay(d: any) {
     if (
