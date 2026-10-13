@@ -164,7 +164,6 @@ export async function goldSummary(options: GoldListOptions = {}) {
       .from("gold_purchases")
       .select(columns, { count: "exact" })
       .order(options.sort ?? "occurred_at", { ascending: (options.direction ?? "desc") === "asc" });
-    // v20: filter by account_id when requested
     if (options.account) q = q.eq("account_id", options.account);
     return q.range(offset, offset + limit - 1);
   };
@@ -184,7 +183,6 @@ export async function goldSummary(options: GoldListOptions = {}) {
         .select("kind, grams, price_per_gram, total")
         .order("occurred_at", { ascending: false })
         .order("id");
-      // v20: filter holdings by account too
       if (options.account) q = q.eq("account_id", options.account);
       return q.range(from, to);
     }),
@@ -298,7 +296,6 @@ export async function listReceivables(
         .from("receivables")
         .select("*", { count: "exact" })
         .order("lent_at", { ascending: false });
-      // v20: filter by account_id when requested
       if (options.account) q = q.eq("account_id", options.account);
       return q.range(offset, offset + limit - 1);
     })(),
@@ -316,7 +313,6 @@ export async function listReceivables(
         .select("id, amount, currency, status")
         .eq("status", "active")
         .order("id");
-      // v20: filter outstanding by account too
       if (options.account) q = q.eq("account_id", options.account);
       return q.range(from, to);
     }),

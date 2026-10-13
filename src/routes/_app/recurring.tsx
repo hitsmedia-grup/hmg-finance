@@ -176,7 +176,7 @@ function RecurringPage() {
           </p>
         </Card>
       </div>
-      {rows.length === 0 ? (
+      {filtered.length === 0 ? (
         <Empty
           text={t("Belum ada transaksi berulang. Tambahkan gaji, sewa, atau transfer tabungan…")}
         />
