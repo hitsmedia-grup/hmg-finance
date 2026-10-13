@@ -125,9 +125,7 @@ export const subscriptionSchema = z.object({
   name: z.string().trim().min(1).max(100),
   amount: money,
   currency: z.enum(CURRENCIES),
-  cycle: z.enum(["monthly", "yearly", "custom"]),
-  /** v22: jumlah bulan per siklus. monthly→1, yearly→12, custom→N yang diisi user. */
-  cycle_months: z.coerce.number().int().min(1).max(1200).default(1),
+  cycle: z.enum(["monthly", "yearly"]),
   next_due: dateStr,
   account_id: optId,
   category_id: optId,
@@ -137,13 +135,6 @@ export const subscriptionSchema = z.object({
     .default(null),
   notes: optText(1000),
 });
-
-/** Interval bulan efektif dari siklus langganan. */
-export function cycleMonths(s: { cycle: string; cycle_months?: number | null }): number {
-  if (s.cycle === "yearly") return 12;
-  if (s.cycle === "custom") return Number(s.cycle_months) || 1;
-  return 1;
-}
 
 export const budgetSchema = z.object({
   category_id: z.string().uuid("Pilih kategori"),

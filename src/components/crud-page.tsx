@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { toast } from "@/lib/toast";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,7 @@ export function useCrudDialog(table: CrudTable, defaults: Values) {
       }
     },
 
-    dialog: (
-      title: string,
-      fields: FieldDef[] | ((v: Values) => FieldDef[]),
-      extra?: (v: Values, set: (k: string, v: unknown) => void) => React.ReactNode,
-    ) => (
+    dialog: (title: string, fields: FieldDef[] | ((v: Values) => FieldDef[])) => (
       <>
         <EntityDialog
           open={state.open}
@@ -53,7 +49,6 @@ export function useCrudDialog(table: CrudTable, defaults: Values) {
           fields={fields}
           initial={state.initial}
           onSubmit={(v) => crud.save(v, state.id)}
-          extra={extra}
         />
         {ask.element}
       </>
