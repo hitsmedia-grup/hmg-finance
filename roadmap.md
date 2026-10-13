@@ -50,3 +50,6 @@
 - [x] Idempotensi `external_id` dan tabel `bot_drafts`
 - [x] Laporan harian/mingguan/bulanan (`/report`, `/hariini`, `/minggu`, `/bulan`), daftar pemasukan/pengeluaran, paylater, langganan, budget, piutang
 - [x] Fix: AI tidak lagi membuat kategori "Nama (expense)"; akun default bot; batas ukuran gambar sesuai limit Vercel
+
+## v22
+- [x] Langganan: siklus kustom (`cycle_months`) — tiap N bulan, tidak terbatas bulanan & tahunan (misal: 3 bulan, 6 bulan, 2 tahun, 5 tahun)

@@ -950,6 +950,14 @@ export async function addGoalFunds(
 }
 
 /* ---------------- Subscriptions ---------------- */
+/** Label siklus untuk reminder dan bot. Contoh: "bulanan", "3 bulan", "tahunan", "2 tahun". */
+function cycleLabel(cycle: string, cycleMonths?: number | null): string {
+  const m = cycle === "yearly" ? 12 : cycle === "custom" ? (cycleMonths ?? 1) : 1;
+  if (m === 1) return "bulanan";
+  if (m === 12) return "tahunan";
+  if (m % 12 === 0) return `${m / 12} tahun`;
+  return `${m} bulan`;
+}
 export async function paySubscription(id: string, accountId: string | null, date: string | null) {
   const s = must(await db().from("subscriptions").select("*").eq("id", id).single());
   const cat = s.category_id ?? (await ensureCategory("Langganan", "expense"));
@@ -969,7 +977,10 @@ export async function paySubscription(id: string, accountId: string | null, date
     notes: null,
     receipt_path: null,
   });
-  const next = addMonthsKeepDay(s.next_due, s.cycle === "yearly" ? 12 : 1);
+  const next = addMonthsKeepDay(
+    s.next_due,
+    s.cycle === "yearly" ? 12 : s.cycle === "custom" ? (s.cycle_months ?? 1) : 1,
+  );
   must(await db().from("subscriptions").update({ next_due: next }).eq("id", id));
   await logActivity("subscription.pay", "subscriptions", {
     name: s.name,
@@ -1038,7 +1049,7 @@ export async function computeReminders(days = 30, pre: ReminderInputs = {}): Pro
     out.push({
       type: "subscription",
       id: s.id,
-      title: `Langganan ${s.name} (${s.cycle === "yearly" ? "tahunan" : "bulanan"})`,
+      title: `Langganan ${s.name} (${cycleLabel(s.cycle, s.cycle_months)})`,
       amount: amt,
       currency: s.currency,
       amount_idr: await toIdr(amt, s.currency, rate),

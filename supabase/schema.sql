@@ -83,7 +83,9 @@ create table if not exists public.subscriptions (
   name text not null,
   amount numeric(18,2) not null,
   currency text not null default 'IDR' check (currency in ('IDR','USD')),
-  cycle text not null default 'monthly' check (cycle in ('monthly','yearly')),
+  cycle text not null default 'monthly' check (cycle in ('monthly','yearly','custom')),
+  -- v22: jumlah bulan per siklus (monthly=1, yearly=12, custom=N); sumber kebenaran interval.
+  cycle_months int not null default 1 check (cycle_months >= 1),
   next_due date not null,
   account_id uuid references public.accounts(id) on delete set null,
   category_id uuid references public.categories(id) on delete set null,
@@ -91,6 +93,13 @@ create table if not exists public.subscriptions (
   notes text,
   created_at timestamptz not null default now()
 );
+-- Jika tabel subscriptions sudah ada, jalankan migrasi berikut:
+-- alter table public.subscriptions drop constraint if exists subscriptions_cycle_check;
+-- alter table public.subscriptions add constraint subscriptions_cycle_check
+--   check (cycle in ('monthly','yearly','custom'));
+-- alter table public.subscriptions
+--   add column if not exists cycle_months int not null default 1 check (cycle_months >= 1);
+-- update public.subscriptions set cycle_months = 12 where cycle = 'yearly';
 
 create table if not exists public.budgets (
   id uuid primary key default gen_random_uuid(),

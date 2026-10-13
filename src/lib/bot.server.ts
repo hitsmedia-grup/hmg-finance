@@ -854,10 +854,11 @@ export async function subscriptionsText(): Promise<string> {
   const lines = ["🔁 Langganan aktif", ""];
   for (const s of subs) {
     const amt = withTax(Number(s.amount), s.tax_percent);
-    monthlyIdr += (s.cycle === "yearly" ? amt / 12 : amt) * (s.currency === "USD" ? rate : 1);
+    monthlyIdr += (amt / (s.cycle === "yearly" ? 12 : s.cycle === "custom" ? (s.cycle_months ?? 1) : 1)) * (s.currency === "USD" ? rate : 1);
     const late = s.next_due < today ? " ⚠️ lewat" : s.next_due === today ? " • HARI INI" : "";
+    const cycleTag = s.cycle === "yearly" ? "thn" : s.cycle === "custom" && (s.cycle_months ?? 1) !== 1 ? `${s.cycle_months}bln` : "bln";
     lines.push(
-      `• ${s.name}: ${money(amt, s.currency)}/${s.cycle === "yearly" ? "thn" : "bln"} — ${s.next_due}${late}`,
+      `• ${s.name}: ${money(amt, s.currency)}/${cycleTag} — ${s.next_due}${late}`,
     );
   }
   lines.push(

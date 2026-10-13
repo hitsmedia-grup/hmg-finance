@@ -286,6 +286,11 @@ const DICT: Record<string, string> = {
   " hari lagi)": " days left)",
   "Sudah bayar": "Mark paid",
   "(kurs otomatis harian)": "(daily automatic rate)",
+  "Bulanan (1 bulan)": "Monthly (1 month)",
+  "Tahunan (12 bulan)": "Yearly (12 months)",
+  "Kustom (isi jumlah bulan)": "Custom (enter month count)",
+  "Jumlah bulan per siklus": "Months per cycle",
+  bulan: "months",
   /* Budgets */
   "Batas pengeluaran bulanan per kategori dengan peringatan otomatis.":
     "Monthly spending limits per category with automatic alerts.",

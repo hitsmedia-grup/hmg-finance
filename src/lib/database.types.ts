@@ -320,7 +320,9 @@ export type Database = {
           name: string;
           amount: number;
           currency: Currency;
-          cycle: "monthly" | "yearly";
+          cycle: "monthly" | "yearly" | "custom";
+          /** v22: jumlah bulan per siklus; monthly=1, yearly=12, custom=N */
+          cycle_months?: number;
           next_due: string;
           account_id: string | null;
           category_id: string | null;
@@ -335,7 +337,8 @@ export type Database = {
           name: string;
           amount: number;
           currency?: Currency;
-          cycle?: "monthly" | "yearly";
+          cycle?: "monthly" | "yearly" | "custom";
+          cycle_months?: number;
           next_due: string;
           account_id?: string | null;
           category_id?: string | null;
@@ -349,7 +352,8 @@ export type Database = {
           name?: string;
           amount?: number;
           currency?: Currency;
-          cycle?: "monthly" | "yearly";
+          cycle?: "monthly" | "yearly" | "custom";
+          cycle_months?: number;
           next_due?: string;
           account_id?: string | null;
           category_id?: string | null;

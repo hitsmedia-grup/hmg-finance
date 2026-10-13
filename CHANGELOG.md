@@ -9,6 +9,15 @@ Starting with v1.0.0, versioned entries (`## [x.y.z]`) are generated automatical
 > [!NOTE]
 > When an entry mentions a **schema section** (`v2`…`v13`), self-hosters must run that section of [`supabase/schema.sql`](supabase/schema.sql) on their Supabase project. Every section is safe to run more than once, and the app keeps working (with the feature disabled) until you do.
 
+## [Unreleased]
+
+### Features
+
+* **subscriptions:** siklus langganan kustom — pilih tiap N bulan (misal 3, 6) atau N tahun via kolom `cycle_months` baru; siklus `monthly` dan `yearly` tetap bekerja tanpa migrasi, fungsionalitas baru aktif setelah menjalankan migrasi v22 ([#76](https://github.com/ilramdhan/dompetku/issues/76))
+
+> [!NOTE]
+> Pengguna yang sudah install perlu menjalankan migrasi **v22** di Supabase SQL Editor (lihat komentar migrasi di `supabase/schema.sql` bagian `subscriptions`).
+
 ## [1.8.0](https://github.com/ilramdhan/dompetku/compare/v1.7.2...v1.8.0) (2026-10-11)
 
 
