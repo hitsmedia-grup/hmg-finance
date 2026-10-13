@@ -287,7 +287,9 @@ export async function goldGramsByMonth(): Promise<{ month: string; grams: number
 }
 
 /* ---------------- Receivables ---------------- */
-export async function listReceivables(options: { offset?: number; limit?: number; account?: string } = {}) {
+export async function listReceivables(
+  options: { offset?: number; limit?: number; account?: string } = {},
+) {
   const offset = options.offset ?? 0;
   const limit = options.limit ?? 24;
   const [r, p, outstanding] = await Promise.all([

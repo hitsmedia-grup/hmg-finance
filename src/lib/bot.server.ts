@@ -857,9 +857,7 @@ export async function subscriptionsText(): Promise<string> {
     monthlyIdr += (amt / (s.cycle === "yearly" ? 12 : 1)) * (s.currency === "USD" ? rate : 1);
     const late = s.next_due < today ? " ⚠️ lewat" : s.next_due === today ? " • HARI INI" : "";
     const cycleTag = s.cycle === "yearly" ? "thn" : "bln";
-    lines.push(
-      `• ${s.name}: ${money(amt, s.currency)}/${cycleTag} — ${s.next_due}${late}`,
-    );
+    lines.push(`• ${s.name}: ${money(amt, s.currency)}/${cycleTag} — ${s.next_due}${late}`);
   }
   lines.push(
     "",

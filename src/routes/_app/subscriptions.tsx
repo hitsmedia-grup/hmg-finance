@@ -205,72 +205,69 @@ function SubsPage() {
         visible={page.visible.length}
         onChange={page.setOffset}
       />
-      {crud.dialog(
-        t("langganan"),
-        [
-          {
-            name: "name",
-            label: t("Nama layanan"),
-            type: "text",
-            placeholder: "Netflix, ChatGPT Plus…",
-          },
-          {
-            name: "amount",
-            label: t("Harga (sebelum pajak, atau sudah termasuk)"),
-            type: "number",
-            half: true,
-          },
-          {
-            name: "tax_percent",
-            label: t("Pajak % (opsional, kosongkan jika sudah termasuk)"),
-            type: "number",
-            half: true,
-            placeholder: "11",
-          },
-          {
-            name: "currency",
-            label: t("Mata uang"),
-            type: "select",
-            half: true,
-            options: CURRENCY_OPTIONS,
-          },
-          {
-            name: "cycle",
-            label: t("Siklus"),
-            type: "select",
-            half: true,
-            options: [
-              { value: "monthly", label: t("Bulanan") },
-              { value: "yearly", label: t("Tahunan") },
-            ],
-          },
-          { name: "next_due", label: t("Tagihan berikutnya"), type: "date", half: true },
-          {
-            name: "account_id",
-            label: t("Dibayar dari"),
-            type: "select",
-            half: true,
-            options: [
-              { value: "", label: "—" },
-              ...accounts.map((a) => ({ value: a.id, label: a.name })),
-            ],
-          },
-          {
-            name: "category_id",
-            label: t("Kategori"),
-            type: "select",
-            half: true,
-            options: [
-              { value: "", label: t("Langganan (default)") },
-              ...categories
-                .filter((c) => c.kind === "expense")
-                .map((c) => ({ value: c.id, label: c.name })),
-            ],
-          },
-          { name: "active", label: t("Aktif"), type: "switch" },
-          { name: "notes", label: t("Catatan"), type: "textarea" },
-        ],
-      )}
+      {crud.dialog(t("langganan"), [
+        {
+          name: "name",
+          label: t("Nama layanan"),
+          type: "text",
+          placeholder: "Netflix, ChatGPT Plus…",
+        },
+        {
+          name: "amount",
+          label: t("Harga (sebelum pajak, atau sudah termasuk)"),
+          type: "number",
+          half: true,
+        },
+        {
+          name: "tax_percent",
+          label: t("Pajak % (opsional, kosongkan jika sudah termasuk)"),
+          type: "number",
+          half: true,
+          placeholder: "11",
+        },
+        {
+          name: "currency",
+          label: t("Mata uang"),
+          type: "select",
+          half: true,
+          options: CURRENCY_OPTIONS,
+        },
+        {
+          name: "cycle",
+          label: t("Siklus"),
+          type: "select",
+          half: true,
+          options: [
+            { value: "monthly", label: t("Bulanan") },
+            { value: "yearly", label: t("Tahunan") },
+          ],
+        },
+        { name: "next_due", label: t("Tagihan berikutnya"), type: "date", half: true },
+        {
+          name: "account_id",
+          label: t("Dibayar dari"),
+          type: "select",
+          half: true,
+          options: [
+            { value: "", label: "—" },
+            ...accounts.map((a) => ({ value: a.id, label: a.name })),
+          ],
+        },
+        {
+          name: "category_id",
+          label: t("Kategori"),
+          type: "select",
+          half: true,
+          options: [
+            { value: "", label: t("Langganan (default)") },
+            ...categories
+              .filter((c) => c.kind === "expense")
+              .map((c) => ({ value: c.id, label: c.name })),
+          ],
+        },
+        { name: "active", label: t("Aktif"), type: "switch" },
+        { name: "notes", label: t("Catatan"), type: "textarea" },
+      ])}
     </>
   );
 }

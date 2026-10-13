@@ -754,7 +754,7 @@ export async function computeBudgets(month: string, accountFilter?: string | nul
   const carries = rolling.length
     ? await (await import("./budget.server")).rolloverCarries(month, rolling)
     : new Map<string, number>();
-  
+
   // v20: filter by account when requested
   let filtered = budgets;
   if (accountFilter) {
@@ -766,7 +766,7 @@ export async function computeBudgets(month: string, accountFilter?: string | nul
       return aid === null || aid === lowerFilter;
     });
   }
-  
+
   return filtered.map((b) => {
     const amount = Number(b.amount);
     const s = spent.get(b.category_id) ?? 0;
@@ -969,10 +969,7 @@ export async function paySubscription(id: string, accountId: string | null, date
     notes: null,
     receipt_path: null,
   });
-  const next = addMonthsKeepDay(
-    s.next_due,
-    s.cycle === "yearly" ? 12 : 1,
-  );
+  const next = addMonthsKeepDay(s.next_due, s.cycle === "yearly" ? 12 : 1);
   must(await db().from("subscriptions").update({ next_due: next }).eq("id", id));
   await logActivity("subscription.pay", "subscriptions", {
     name: s.name,

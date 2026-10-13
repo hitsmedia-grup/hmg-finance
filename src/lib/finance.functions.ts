@@ -233,7 +233,9 @@ export const getDebts = createServerFn({ method: "GET" })
 
 export const getBudgets = createServerFn({ method: "GET" })
   .middleware([requireAdmin])
-  .inputValidator((d: unknown) => z.object({ month, account: z.string().uuid().optional() }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({ month, account: z.string().uuid().optional() }).parse(d),
+  )
   .handler(async ({ data }) => {
     const { computeBudgets } = await import("./finance.server");
     return computeBudgets(data.month, data.account);
