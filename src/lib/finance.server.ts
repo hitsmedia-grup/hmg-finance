@@ -11,6 +11,7 @@ import { budgetPercent } from "./budget";
 import type { Json, Tables, TablesInsert } from "./database.types";
 import { scopeIds, txScopeFilter, walletNetByMonth } from "./permissions";
 import { walletAggRows, type WalletTx } from "./report-filter";
+import { subMonthly, subNextDue } from "./subscriptions";
 import {
   categoriesByName,
   categorySlices,
@@ -954,7 +955,7 @@ export async function paySubscription(id: string, accountId: string | null, date
     notes: null,
     receipt_path: null,
   });
-  const next = addMonthsKeepDay(s.next_due, s.cycle === "yearly" ? 12 : 1);
+  const next = subNextDue(s.cycle, s.interval ?? 1, s.next_due);
   must(await db().from("subscriptions").update({ next_due: next }).eq("id", id));
   await logActivity("subscription.pay", "subscriptions", {
     name: s.name,
@@ -1020,10 +1021,19 @@ export async function computeReminders(days = 30, pre: ReminderInputs = {}): Pro
   const subs = must(subsRes);
   for (const s of subs) {
     const amt = withTax(Number(s.amount), s.tax_percent);
+    const interval = Math.max(1, s.interval || 1);
+    const cycleText =
+      interval > 1
+        ? s.cycle === "yearly"
+          ? `tiap ${interval} tahun`
+          : `tiap ${interval} bulan`
+        : s.cycle === "yearly"
+          ? "tahunan"
+          : "bulanan";
     out.push({
       type: "subscription",
       id: s.id,
-      title: `Langganan ${s.name} (${s.cycle === "yearly" ? "tahunan" : "bulanan"})`,
+      title: `Langganan ${s.name} (${cycleText})`,
       amount: amt,
       currency: s.currency,
       amount_idr: await toIdr(amt, s.currency, rate),
@@ -1220,7 +1230,7 @@ export async function computeDashboard(month: string) {
     );
   const subsMonthlyIdr = must(subsRes).reduce((a, s) => {
     const v = withTax(Number(s.amount), s.tax_percent) * (s.currency === "USD" ? rate : 1);
-    return a + (s.cycle === "yearly" ? v / 12 : v);
+    return a + subMonthly(v, s.cycle, s.interval ?? 1);
   }, 0);
   const feesIdr = monthCats.filter((c) => c.name === FEE_CATEGORY).reduce((a, c) => a + c.total, 0);
   return {
