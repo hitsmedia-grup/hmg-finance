@@ -9,6 +9,88 @@ Starting with v1.0.0, versioned entries (`## [x.y.z]`) are generated automatical
 > [!NOTE]
 > When an entry mentions a **schema section** (`v2`…`v13`), self-hosters must run that section of [`supabase/schema.sql`](supabase/schema.sql) on their Supabase project. Every section is safe to run more than once, and the app keeps working (with the feature disabled) until you do.
 
+## [1.11.0](https://github.com/hitsmedia-grup/hmg-finance/compare/v1.10.1...v1.11.0) (2026-10-14)
+
+
+### Features
+
+* add wallet filters to entity pages ([1b1e0bb](https://github.com/hitsmedia-grup/hmg-finance/commit/1b1e0bb59c86dc35414cf3df4dfe401b52986792))
+* add wallet filters to finance lists ([e8d22d3](https://github.com/hitsmedia-grup/hmg-finance/commit/e8d22d397a4b033d52245a52192a6c71914d08ae))
+* **app-shell:** show app version under sidebar and in the icon rail ([44c8140](https://github.com/hitsmedia-grup/hmg-finance/commit/44c8140c718994f175e4ef9aae356183e7cc4a16))
+* **auth:** multi-user accounts with wallet-level access control ([#28](https://github.com/hitsmedia-grup/hmg-finance/issues/28)) ([fe07014](https://github.com/hitsmedia-grup/hmg-finance/commit/fe070140f06db1b0da066895c3fd1d08dad1109a))
+* **bot:** guard AI token usage with an amount gate, length cap and daily quota ([#17](https://github.com/hitsmedia-grup/hmg-finance/issues/17)) ([85e86dc](https://github.com/hitsmedia-grup/hmg-finance/commit/85e86dc4d04cf060d0e048cf00fa5d60be55a3d3))
+* **bot:** support Telegram groups via [@mention](https://github.com/mention), reply or /command ([#72](https://github.com/hitsmedia-grup/hmg-finance/issues/72)) ([1660856](https://github.com/hitsmedia-grup/hmg-finance/commit/166085617621328b2cea223a1051b992c18aec34))
+* **brand:** new Dompetku wallet logo, icons and og-image ([980cd37](https://github.com/hitsmedia-grup/hmg-finance/commit/980cd37a6a4a4e98609a8865cbbae6c0a035eccd))
+* **dashboard:** align stat cards and add share-of-income ratio widget ([dce1664](https://github.com/hitsmedia-grup/hmg-finance/commit/dce166409859a40005c4ce7d30a943d0ab63bf0a))
+* **demo:** daily demo reset workflow and safer, fuller seed reset ([3837701](https://github.com/hitsmedia-grup/hmg-finance/commit/383770184c3abdee2ef0f6a3a3514ada384b187f))
+* **demo:** DEMO_MODE server guards, row caps, write rate limit and PUBLIC_DEMO_URL ([9eee011](https://github.com/hitsmedia-grup/hmg-finance/commit/9eee011c04ce8c065231c4b0ec03c46c245bd44c))
+* **demo:** one-click demo login, in-app banner, disabled controls and Coba demo links ([f093107](https://github.com/hitsmedia-grup/hmg-finance/commit/f0931072cc2f0504e4191ec0d7ebe85ac67d6b1a))
+* **demo:** public demo mode with one-click login, server guardrails, daily reset and Coba demo links ([4d42c33](https://github.com/hitsmedia-grup/hmg-finance/commit/4d42c33d62487bbee5d521b6dbf6aca1e6190dc3))
+* **docker:** add official docker image and compose for self-hosting ([#46](https://github.com/hitsmedia-grup/hmg-finance/issues/46)) ([4e005f8](https://github.com/hitsmedia-grup/hmg-finance/commit/4e005f872376d71c6206c8f4254cc10a8ba29159))
+* landing page, new logo & dynamic app settings (v14), release-please, demo data & screenshots ([237fc98](https://github.com/hitsmedia-grup/hmg-finance/commit/237fc98e1bf147989a4ecd6804589ba2418001d6))
+* **landing:** public bento landing page at / ([bccc77d](https://github.com/hitsmedia-grup/hmg-finance/commit/bccc77d10eb757ca0fa7f81f99d0053d2a741e78))
+* **landing:** sticky header, logo marquee, back-to-top and scoped smooth scroll ([e9bafa8](https://github.com/hitsmedia-grup/hmg-finance/commit/e9bafa81813b4066b3eed72be213536e146087f2))
+* **landing:** sticky nav, tech-icon marquee, back-to-top, legal pages & app version badge with update check ([c23d0da](https://github.com/hitsmedia-grup/hmg-finance/commit/c23d0daa6cc6064f3cb8ff1a8ba2742136d33285))
+* **legal:** add public /privacy and /terms pages ([4a8d6c5](https://github.com/hitsmedia-grup/hmg-finance/commit/4a8d6c551da4f514d3364b8e3d45e660bc902eb5))
+* **lists:** paginate debts, goals, subscriptions, recurring and reminders ([194e876](https://github.com/hitsmedia-grup/hmg-finance/commit/194e876b8e0dbdfffd8a7b135a3ee9caa505f59a))
+* **pockets:** envelope pockets inside wallets with threshold alerts ([#29](https://github.com/hitsmedia-grup/hmg-finance/issues/29)) ([3877a80](https://github.com/hitsmedia-grup/hmg-finance/commit/3877a80877368cfab8fe075dd5c8d784d6370290))
+* **profile:** add profile page with avatar and password change ([#27](https://github.com/hitsmedia-grup/hmg-finance/issues/27)) ([07ab1aa](https://github.com/hitsmedia-grup/hmg-finance/commit/07ab1aae1a6aa5e9ed3f81cbdec12ed2a30ebe88))
+* **reports:** filter laporan and rekap tahunan by wallet ([#64](https://github.com/hitsmedia-grup/hmg-finance/issues/64)) ([bff7cd9](https://github.com/hitsmedia-grup/hmg-finance/commit/bff7cd95a9edc2999eaae62cc6e0209190cb4d7c))
+* **seo:** english landing via ?lang with hreflang, llms.txt and search console verification ([#50](https://github.com/hitsmedia-grup/hmg-finance/issues/50)) ([7fa7f7e](https://github.com/hitsmedia-grup/hmg-finance/commit/7fa7f7e1789d086429b0522e2ecc4464720c67f7))
+* **seo:** make landing page indexable with sitemap and structured data ([#47](https://github.com/hitsmedia-grup/hmg-finance/issues/47)) ([aecd8c9](https://github.com/hitsmedia-grup/hmg-finance/commit/aecd8c9fe0069f8b3da78b925338b5a375a42aad))
+* **settings:** add About card with version, commit, build date and links ([1bbf905](https://github.com/hitsmedia-grup/hmg-finance/commit/1bbf9055c7e4ac3095e55df03a922b489dbf85da))
+* **settings:** dynamic app settings (schema v14) ([2ed8f40](https://github.com/hitsmedia-grup/hmg-finance/commit/2ed8f40f1ae57df7ef0bf8aad2c410fbbbe7c199))
+* **settings:** manage bot and integration config from the web UI ([#26](https://github.com/hitsmedia-grup/hmg-finance/issues/26)) ([4732e0d](https://github.com/hitsmedia-grup/hmg-finance/commit/4732e0d4311459500df487f6891fd637a091b794))
+* sticky mobile nav, list pagination, back-to-top and dashboard income-ratio widget ([b85e83b](https://github.com/hitsmedia-grup/hmg-finance/commit/b85e83b4d1bbe1aca8fdce8c48675e81379a4740))
+* **subscriptions:** support custom billing cycles ([bf37c1d](https://github.com/hitsmedia-grup/hmg-finance/commit/bf37c1dbdd4de208dac25add526bcdeae6249c69))
+* **subscriptions:** support flexible billing intervals ([#85](https://github.com/hitsmedia-grup/hmg-finance/issues/85)) ([b9f3c2a](https://github.com/hitsmedia-grup/hmg-finance/commit/b9f3c2a048aced8400185f6219e265fac794b1f5))
+* **version:** inject app version/commit at build and add VersionBadge ([a1f8504](https://github.com/hitsmedia-grup/hmg-finance/commit/a1f85041bac3fa2801044a612877ebe7ec2014fe))
+* wallet filter for entity pages and server-scoped gold/receivables ([#74](https://github.com/hitsmedia-grup/hmg-finance/issues/74)) ([#77](https://github.com/hitsmedia-grup/hmg-finance/issues/77)) ([d3add99](https://github.com/hitsmedia-grup/hmg-finance/commit/d3add999e8a450a5eb2ca92643ab6c808fe02f55))
+
+
+### Bug Fixes
+
+* **a11y:** dark-mode contrast and accessible names ([#61](https://github.com/hitsmedia-grup/hmg-finance/issues/61)) ([1deec0f](https://github.com/hitsmedia-grup/hmg-finance/commit/1deec0f6d20a7f6cb4f4d94ec7931e7e44a769b8))
+* **ai:** accept streamed (SSE) responses from OpenAI-compatible proxies like 9router ([#37](https://github.com/hitsmedia-grup/hmg-finance/issues/37)) ([08f1426](https://github.com/hitsmedia-grup/hmg-finance/commit/08f14269734df2d3e5866cab825d55a03107420c))
+* **bot:** let users edit the description of receipt and chat previews ([#69](https://github.com/hitsmedia-grup/hmg-finance/issues/69)) ([0c47799](https://github.com/hitsmedia-grup/hmg-finance/commit/0c4779910b4b75206a42a2ba632950969104e3ec))
+* **recurring:** respect filters in empty state ([460c568](https://github.com/hitsmedia-grup/hmg-finance/commit/460c56885fed62d85bc2c0a8782c03748a8b33f3))
+* remove budget account_id field and gold exactOptional error ([a867fc3](https://github.com/hitsmedia-grup/hmg-finance/commit/a867fc31f54950fc0352856d73bbe4de19c2610a))
+* resolve PR [#77](https://github.com/hitsmedia-grup/hmg-finance/issues/77) feedback - remove budgets/reminders filter, fix typecheck errors ([6dec235](https://github.com/hitsmedia-grup/hmg-finance/commit/6dec2355fd74e1b7cff16b3f4610654f350fd69f))
+* resolve typecheck errors for exactOptionalPropertyTypes ([33d14ec](https://github.com/hitsmedia-grup/hmg-finance/commit/33d14ec68bc995219102976b29c997b82fe12a90))
+* revert leftovers unrelated to wallet filter ([dfeef79](https://github.com/hitsmedia-grup/hmg-finance/commit/dfeef79fb628a2c8965674ea4ff73676af4a7c62))
+* **root:** suppress expected html class hydration warning from the pre-paint theme script ([3c6a381](https://github.com/hitsmedia-grup/hmg-finance/commit/3c6a3811553b6785535fa0f823a2ebe82b58484a))
+* **shell:** pin mobile nav while scrolling, add app-wide back-to-top and smooth scroll ([8061e16](https://github.com/hitsmedia-grup/hmg-finance/commit/8061e160269a32a3437000e8a3a71aa11969451c))
+* **ssr:** hydrate react query cache on the client ([#63](https://github.com/hitsmedia-grup/hmg-finance/issues/63)) ([6c64295](https://github.com/hitsmedia-grup/hmg-finance/commit/6c642957bb0bc1ebcbfc11a01c636e00cb331628))
+
+
+### Performance
+
+* **deploy:** long-lived cache headers for static assets ([#60](https://github.com/hitsmedia-grup/hmg-finance/issues/60)) ([1262140](https://github.com/hitsmedia-grup/hmg-finance/commit/12621405cd3d620a083e58011e0a3e113efe873b))
+* **landing:** serve responsive webp screenshots ([#59](https://github.com/hitsmedia-grup/hmg-finance/issues/59)) ([d9c2df2](https://github.com/hitsmedia-grup/hmg-finance/commit/d9c2df2d48b95c082044fb19cc9b4d265fcb7c71))
+* slim the mobile critical path (fonts, entry chunk) ([#66](https://github.com/hitsmedia-grup/hmg-finance/issues/66)) ([0d787df](https://github.com/hitsmedia-grup/hmg-finance/commit/0d787dfb677847c1615939a6bd1c85740caec0d1))
+
+
+### Documentation
+
+* add accessibility statement ([#16](https://github.com/hitsmedia-grup/hmg-finance/issues/16)) ([b5b9fbe](https://github.com/hitsmedia-grup/hmg-finance/commit/b5b9fbefcd4f1cd5e8ea7cb76faa829c0eff104f))
+* add CLAUDE.md and record scroll, pagination and ratio rules ([182f8a3](https://github.com/hitsmedia-grup/hmg-finance/commit/182f8a3c2aa9779d7119859594e8a17a182adfbb))
+* add what's new in v1.5 images (ID and EN) ([#33](https://github.com/hitsmedia-grup/hmg-finance/issues/33)) ([40c4428](https://github.com/hitsmedia-grup/hmg-finance/commit/40c4428a63de2d7521f2175003bde4a79bedd9ce))
+* add what's new in v1.6 images (ID and EN) ([db81d82](https://github.com/hitsmedia-grup/hmg-finance/commit/db81d828808bab6b52dc27a3c85b458ab0198f7a))
+* add what's new in v1.7 images (ID and EN) ([a79b646](https://github.com/hitsmedia-grup/hmg-finance/commit/a79b646112992092ede2ed974e5f776afe5063bb))
+* clarify bot commands that skip the preview and recurring catch-up limits ([#89](https://github.com/hitsmedia-grup/hmg-finance/issues/89)) ([f31e787](https://github.com/hitsmedia-grup/hmg-finance/commit/f31e7878196f489a38934d045893ef9277a262c8))
+* **demo:** public demo guide, env vars, README live demo link and security note ([3138ec9](https://github.com/hitsmedia-grup/hmg-finance/commit/3138ec9150e26a96faab5536af0a93d83a473ed8))
+* **demo:** read the local secret key from supabase status instead of inlining it ([ea227ff](https://github.com/hitsmedia-grup/hmg-finance/commit/ea227ff7bfa4cdc2143c5b819894a1338c66526e))
+* describe app version badge and update check ([832cc0d](https://github.com/hitsmedia-grup/hmg-finance/commit/832cc0d8e2ea44ee99fd108acefaa6c19713edf7))
+* document bun as the primary package manager ([#78](https://github.com/hitsmedia-grup/hmg-finance/issues/78)) ([dbd9837](https://github.com/hitsmedia-grup/hmg-finance/commit/dbd9837bdf82bc9becb50f87a5b1a23884a22c4e))
+* improve readme discoverability and add github sponsors ([#41](https://github.com/hitsmedia-grup/hmg-finance/issues/41)) ([a157e26](https://github.com/hitsmedia-grup/hmg-finance/commit/a157e26acc63693fd284180a8bb38a92cc488884))
+* mention legal pages and credit Simple Icons ([10fad5e](https://github.com/hitsmedia-grup/hmg-finance/commit/10fad5eeb4eda196462ce3b0a2db34882fe7b4c6))
+* point repository links at ilramdhan/dompetku ([#18](https://github.com/hitsmedia-grup/hmg-finance/issues/18)) ([a937710](https://github.com/hitsmedia-grup/hmg-finance/commit/a937710bb16528c3b5731cb0069c73dcf046de41))
+* **readme:** add contributors and star history sections ([#48](https://github.com/hitsmedia-grup/hmg-finance/issues/48)) ([b0d1eed](https://github.com/hitsmedia-grup/hmg-finance/commit/b0d1eed484bbf64e22e68107d688cf8c390bb29c))
+* screenshot gallery in README and regenerating-screenshots guide ([8919fd3](https://github.com/hitsmedia-grup/hmg-finance/commit/8919fd35aed02c27c9cb414fe68ebdf1ed10b84d))
+* **screenshots:** add light/dark app, landing and bot screenshots from demo data ([7f2485c](https://github.com/hitsmedia-grup/hmg-finance/commit/7f2485c3782418818f155764be01353bb095975a))
+* **screenshots:** regenerate with sticky header, tech icons, legal links and version badge ([e0a3af2](https://github.com/hitsmedia-grup/hmg-finance/commit/e0a3af2105fbb13d54bb0206e0d3d6b501282663))
+* v1.5 screenshots and demo seed for pockets and members ([#35](https://github.com/hitsmedia-grup/hmg-finance/issues/35)) ([13de9a8](https://github.com/hitsmedia-grup/hmg-finance/commit/13de9a8503e2c9aea0073bd025ddcd81429a49b8))
+
 ## [1.10.1](https://github.com/ilramdhan/dompetku/compare/v1.10.0...v1.10.1) (2026-10-14)
 
 
