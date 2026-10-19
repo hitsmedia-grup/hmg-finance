@@ -262,7 +262,7 @@ For each JSON file in [`n8n/`](../n8n):
 | `02-dompetku-jadwal.json`         | Bill reminders 08:00 (only if something is due), daily recap 21:00, weekly report Mon 07:30, monthly report on the 1st 07:00 | Schedule                                  | `FINTRACK_URL`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`      | Header Auth                                |
 | `03-dompetku-error-handler.json`  | Telegram alert when another workflow fails                                                                                   | Error Trigger                             | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`                      | —                                          |
 | `04-dompetku-setup-commands.json` | One-off: registers the `/` command menu, shows webhook info                                                                  | Manual                                    | `TELEGRAM_BOT_TOKEN`                                                | —                                          |
-| `05-dompetku-backup.json`         | Weekly full backup → Google Drive (or email attachment)                                                                      | Schedule, Sunday 02:00                    | `FINTRACK_URL` (+ `BACKUP_EMAIL_FROM`, `BACKUP_EMAIL_TO` for email) | Header Auth, Google Drive OAuth2 (or SMTP) |
+| `05-dompetku-backup.json`         | Weekly full backup → Google Drive (or email attachment); permanently cleans matching Drive backups older than 90 days         | Schedule, Sunday 02:00                    | `FINTRACK_URL` (+ `BACKUP_EMAIL_FROM`, `BACKUP_EMAIL_TO` for email) | Header Auth, Google Drive OAuth2 (or SMTP) |
 
 All schedules use the workflow time zone **Asia/Jakarta** — change it under **⋯ → Settings → Timezone**, and keep it equal to the app's `APP_TIMEZONE` so "today" means the same day.
 
@@ -311,11 +311,18 @@ Workflow 05 uploads the backup with your own Google account. Google requires you
 5. **Create the n8n credential.** n8n → **Credentials → Create → Google Drive OAuth2 API** → paste Client ID and Client Secret → **Sign in with Google** → choose your account → allow. Success: the credential shows _Account connected_.
 6. **Pick the destination folder.** Create a folder in Google Drive (e.g. `Dompetku backups`) and open it. The URL looks like
    `https://drive.google.com/drive/folders/1AbCdEfGhIjKlMnOpQrStUvWxYz?usp=sharing` — the **folder ID** is the part after `/folders/` and before `?` (`1AbCdEf…`).
-   In workflow 05 open **Upload ke Google Drive** → _Folder_ → replace `REPLACE_ME_FOLDER_ID` with that ID (mode _By ID_), or switch the mode to **From list** and click the folder.
-7. **Test:** click **Test workflow**. A file named `dompetku-cadangan-YYYY-MM-DD.json` (the server's file name; `dompetku-backup-YYYY-MM-DD.json` if the header is missing) appears in the folder. Then activate the workflow.
+   In workflow 05 replace `REPLACE_ME_FOLDER_ID` with that ID in both nodes: **Upload ke Google Drive** → _Folder_, and **Cari Backup Lama** → _Folder ID_. Keep both as _By ID_, or select the same folder from each list.
+7. **Test upload:** temporarily disable **Hapus Backup Lama** (select it, press **D**), then click **Test workflow**. A file named `dompetku-cadangan-YYYY-MM-DD.json` (the server's file name; `dompetku-backup-YYYY-MM-DD.json` if the header is missing) appears in the folder.
+8. **Test cleanup search:** open execution data for **Cari Backup Lama**. A backup created in the last 90 days must return **0 items**. Only an older matching backup may return, with `id`, `name`, and `createdTime`. Re-enable **Hapus Backup Lama** only after this result is correct, then activate the workflow.
+
+> [!IMPORTANT]
+> After every upload, **Cari Backup Lama** asks Google Drive to find only files in configured folder whose name starts with `dompetku-backup-` or `dompetku-cadangan-` and whose `createdTime` is older than 90 days. Google Drive applies this age limit before any file reaches **Hapus Backup Lama**. Folders, other names, and backups from the last 90 days are not deleted.
+
+> [!WARNING]
+> **Hapus Backup Lama** uses permanent deletion. Matching files older than 90 days skip Google Drive Trash and cannot be restored. Verify **Cari Backup Lama** output before first activation.
 
 > [!NOTE]
-> Workflow 05 doesn't keep execution data (`saveDataSuccessExecution`/`saveDataErrorExecution: none`), so copies of your finances don't pile up in n8n's database. Delete old backups in Drive now and then. To restore: web app → **Settings → Restore from backup**.
+> Workflow 05 doesn't keep execution data (`saveDataSuccessExecution`/`saveDataErrorExecution: none`), so copies of your finances don't pile up in n8n's database. To restore: web app → **Settings → Restore from backup**.
 
 ---
 
@@ -434,6 +441,7 @@ The _Kirim via email_ ("send via email") node ships **disabled** (greyed out).
 | Emails land in **spam**                                                     | Add a DMARC record at your DNS provider: type **TXT**, name `_dmarc` (or `_dmarc.mail` for a subdomain), value `v=DMARC1; p=none;`. Mark the first mail as "not spam".                                                                                                                 |
 | Google Drive: `invalid_grant` / token expired after a week                  | The OAuth app is still in **Testing**. Publish it to **Production** ([section 6](#6-google-cloud-for-drive-backups)), then reconnect the credential.                                                                                                                                   |
 | Google: `redirect_uri_mismatch`                                             | The redirect URI in Google Cloud must equal n8n's _OAuth Redirect URL_ exactly — and n8n must show your public https URL (set `WEBHOOK_URL`/`N8N_HOST`/`N8N_PROTOCOL`).                                                                                                                |
+| Cleanup search returns wrong files or no files                               | Check `REPLACE_ME_FOLDER_ID` was replaced in both **Upload ke Google Drive** and **Cari Backup Lama**, and both use same folder. Test **Cari Backup Lama** with **Hapus Backup Lama** disabled; it must return only matching files older than 90 days. |
 | `Gagal membaca dengan AI [400]` on receipts                                 | App-side AI settings (`AI_API_KEY`, `AI_MODEL`, `AI_API_URL`) are wrong — see [docs/ENVIRONMENT.md](ENVIRONMENT.md).                                                                                                                                                                   |
 
 Still stuck? See [docs/FAQ.md](FAQ.md) or open an issue on GitHub.
